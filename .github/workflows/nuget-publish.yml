@@ -32,9 +32,12 @@ jobs:
           } else {
             $copyright = "Copyright 2025-$year DearVa"
           }
-          dotnet pack src/Avalonia.LiveMarkdown/Avalonia.LiveMarkdown.csproj --configuration Release --no-build -p:PackageVersion=$version -p:Copyright="$copyright" -o out
+          dotnet pack src/Avalonia.LiveMarkdown/Avalonia.LiveMarkdown.csproj --configuration Release --no-build -p:PackageVersion=$version -p:Copyright="$copyright" -o ${{ github.workspace }}/out
 
       - name: Publish to NuGet
-        run: dotnet nuget push out/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+        run: |
+          $pkg = Get-ChildItem "${{ github.workspace }}/out/*.nupkg" | Select-Object -First 1
+          if ($null -eq $pkg) { throw 'No nupkg found!' }
+          dotnet nuget push $pkg.FullName --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
         env:
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}

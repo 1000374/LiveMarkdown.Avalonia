@@ -4,9 +4,11 @@
         <Title>Avalonia.LiveMarkdown</Title>
         <Authors>DearVa</Authors>
         <Description>`Avalonia.LiveMarkdown` is a High-performance Markdown viewer for Avalonia applications.
-It supports **real-time rendering** of Markdown content, so it's ideal for applications that require dynamic text updating, **especially when streaming large model outputs**.</Description>
+            It supports **real-time rendering** of Markdown content, so it's ideal for applications that require dynamic text updating, **especially when streaming large model outputs**.
+        </Description>
         <PackageProjectUrl>https://github.com/DearVa/Avalonia.LiveMarkdown</PackageProjectUrl>
-        <PackageLicenseUrl>https://www.apache.org/licenses/LICENSE-2.0</PackageLicenseUrl>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
         <RepositoryUrl>https://github.com/DearVa/Avalonia.LiveMarkdown</RepositoryUrl>
     </PropertyGroup>
 
@@ -16,8 +18,12 @@ It supports **real-time rendering** of Markdown content, so it's ideal for appli
         <PackageReference Include="ColorCode.Core"/>
         <PackageReference Include="Markdig"/>
         <PackageReference Include="PolySharp">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="..\..\README.md" Pack="true" PackagePath="\"/>
     </ItemGroup>
 </Project>
