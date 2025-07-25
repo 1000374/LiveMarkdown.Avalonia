@@ -1,0 +1,40 @@
+name: Publish NuGet Package
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build-and-publish:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore src/Avalonia.LiveMarkdown/Avalonia.LiveMarkdown.csproj
+
+      - name: Build
+        run: dotnet build src/Avalonia.LiveMarkdown/Avalonia.LiveMarkdown.csproj --configuration Release --no-restore
+
+      - name: Pack
+        run: |
+          $year = (Get-Date).Year
+          $version = "${{ github.ref_name }}" -replace '^v',''
+          if ($year -eq 2025) {
+            $copyright = "Copyright 2025 DearVa"
+          } else {
+            $copyright = "Copyright 2025-$year DearVa"
+          }
+          dotnet pack src/Avalonia.LiveMarkdown/Avalonia.LiveMarkdown.csproj --configuration Release --no-build -p:PackageVersion=$version -p:Copyright="$copyright" -o out
+
+      - name: Publish to NuGet
+        run: dotnet nuget push out/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
