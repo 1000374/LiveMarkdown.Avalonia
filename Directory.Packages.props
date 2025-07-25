@@ -1,15 +1,11 @@
 <Project>
     <PropertyGroup>
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-        <MicrosoftPackageVersion>9.0.5</MicrosoftPackageVersion>
-        <SemanticKernelVersion>1.54.0</SemanticKernelVersion>
         <AvaloniaVersion>11.3.0</AvaloniaVersion>
-        <TokenizersVersion>1.2.0</TokenizersVersion>
     </PropertyGroup>
     <ItemGroup>
         <!-- Base packages -->
         <PackageVersion Include="PolySharp" Version="1.15.0"/>
-        <PackageVersion Include="ZLinq" Version="1.5.0"/>
         <!-- Avalonia packages -->
         <PackageVersion Include="AsyncImageLoader.Avalonia" Version="3.3.0"/>
         <PackageVersion Include="Avalonia" Version="$(AvaloniaVersion)"/>
