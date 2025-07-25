@@ -22,14 +22,13 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="samples\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <None Update="samples\Everywhere.md">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
       <None Update="samples\Markdig.md">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="samples\Test.md">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
     </ItemGroup>

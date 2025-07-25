@@ -6,4 +6,11 @@
     <FluentTheme/>
     <StyleInclude Source="avares://Avalonia.LiveMarkdown/Styles.axaml"/>
   </Application.Styles>
+
+  <Application.Resources>
+    <Color x:Key="BorderColor">#3DFFFFFF</Color>
+    <Color x:Key="ForegroundColor">#FFFFFF</Color>
+    <Color x:Key="CardBackgroundColor">#15000000</Color>
+    <Color x:Key="SecondaryCardBackgroundColor">#99000000</Color>
+  </Application.Resources>
 </Application>
