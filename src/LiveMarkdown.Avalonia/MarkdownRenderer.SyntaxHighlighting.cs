@@ -9,7 +9,7 @@ using ColorCode.Common;
 using ColorCode.Parsing;
 using ColorCode.Styling;
 
-namespace Avalonia.LiveMarkdown;
+namespace LiveMarkdown.Avalonia;
 
 public partial class MarkdownRenderer
 {

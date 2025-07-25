@@ -1,13 +1,12 @@
 ﻿// @author https://github.com/DearVa
 
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
 using Avalonia.Media.TextFormatting.Unicode;
 using Markdig.Syntax;
 
-namespace Avalonia.LiveMarkdown;
+namespace LiveMarkdown.Avalonia;
 
 public partial class MarkdownRenderer
 {
@@ -51,7 +50,7 @@ public partial class MarkdownRenderer
     /// Utility class to map <see cref="Control"/> to <see cref="BlockNode"/> itself
     /// </summary>
     /// <param name="target"></param>
-    private class BlocksProxy(Controls.Controls target)
+    private class BlocksProxy(Controls target)
     {
         private class MockBlockNode(Control control) : BlockNode
         {

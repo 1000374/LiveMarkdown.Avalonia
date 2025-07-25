@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace Avalonia.LiveMarkdown;
+namespace LiveMarkdown.Avalonia;
 
 public readonly record struct ObservableStringBuilderChangedEventArgs(string NewString, int StartIndex, int Length);
 

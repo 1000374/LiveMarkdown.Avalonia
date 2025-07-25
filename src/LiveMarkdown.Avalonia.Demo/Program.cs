@@ -1,4 +1,6 @@
-﻿namespace Avalonia.LiveMarkdown.Demo;
+﻿using Avalonia;
+
+namespace LiveMarkdown.Avalonia.Demo;
 
 public static class Program
 {

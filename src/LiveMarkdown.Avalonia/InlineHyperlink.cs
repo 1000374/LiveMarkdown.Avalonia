@@ -1,12 +1,13 @@
 ﻿// @author https://github.com/DearVa
 // @author https://github.com/AuroraZiling
 
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 
-namespace Avalonia.LiveMarkdown;
+namespace LiveMarkdown.Avalonia;
 
 public class InlineHyperlink : InlineUIContainer
 {

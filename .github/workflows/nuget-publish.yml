@@ -18,10 +18,10 @@ jobs:
           dotnet-version: '9.0.x'
 
       - name: Restore dependencies
-        run: dotnet restore src/Avalonia.LiveMarkdown/Avalonia.LiveMarkdown.csproj
+        run: dotnet restore src/LiveMarkdown.Avalonia/LiveMarkdown.Avalonia.csproj
 
       - name: Build
-        run: dotnet build src/Avalonia.LiveMarkdown/Avalonia.LiveMarkdown.csproj --configuration Release --no-restore
+        run: dotnet build src/LiveMarkdown.Avalonia/LiveMarkdown.Avalonia.csproj --configuration Release --no-restore
 
       - name: Pack
         run: |
@@ -32,7 +32,7 @@ jobs:
           } else {
             $copyright = "Copyright 2025-$year DearVa"
           }
-          dotnet pack src/Avalonia.LiveMarkdown/Avalonia.LiveMarkdown.csproj --configuration Release --no-build -p:PackageVersion=$version -p:Copyright="$copyright" -o ${{ github.workspace }}/out
+          dotnet pack src/LiveMarkdown.Avalonia/LiveMarkdown.Avalonia.csproj --configuration Release --no-build -p:PackageVersion=$version -p:Copyright="$copyright" -o ${{ github.workspace }}/out
 
       - name: Publish to NuGet
         run: |

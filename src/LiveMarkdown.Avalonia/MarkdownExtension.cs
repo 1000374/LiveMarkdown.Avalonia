@@ -3,7 +3,7 @@ using Markdig.Parsers;
 using Markdig.Renderers;
 using Markdig.Syntax;
 
-namespace Avalonia.LiveMarkdown;
+namespace LiveMarkdown.Avalonia;
 
 internal static class MarkdownExtension
 {

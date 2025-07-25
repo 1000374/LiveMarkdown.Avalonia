@@ -18,7 +18,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Avalonia.LiveMarkdown\Avalonia.LiveMarkdown.csproj" />
+      <ProjectReference Include="..\LiveMarkdown.Avalonia\LiveMarkdown.Avalonia.csproj" />
     </ItemGroup>
 
     <ItemGroup>

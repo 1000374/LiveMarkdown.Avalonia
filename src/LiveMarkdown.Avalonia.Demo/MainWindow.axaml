@@ -1,9 +1,9 @@
 <Window
-  x:Class="Avalonia.LiveMarkdown.Demo.MainWindow" xmlns="https://github.com/avaloniaui"
+  x:Class="LiveMarkdown.Avalonia.Demo.MainWindow" xmlns="https://github.com/avaloniaui"
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-  xmlns:demo="clr-namespace:Avalonia.LiveMarkdown.Demo" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-  xmlns:md="clr-namespace:Avalonia.LiveMarkdown;assembly=Avalonia.LiveMarkdown" d:DesignHeight="450"
-  d:DesignWidth="800" Title="Avalonia.LiveMarkdown.Demo"
+  xmlns:demo="clr-namespace:LiveMarkdown.Avalonia.Demo" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:md="clr-namespace:LiveMarkdown.Avalonia;assembly=LiveMarkdown.Avalonia" d:DesignHeight="450"
+  d:DesignWidth="800" Title="LiveMarkdown.Avalonia.Demo"
   mc:Ignorable="d">
   <Grid
     Margin="4" ColumnDefinitions="*,4,*"

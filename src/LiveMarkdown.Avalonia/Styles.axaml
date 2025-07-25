@@ -3,7 +3,7 @@
 
 <Styles
   xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-  xmlns:md="clr-namespace:Avalonia.LiveMarkdown">
+  xmlns:md="clr-namespace:LiveMarkdown.Avalonia">
   <Style Selector="md|MarkdownRenderer">
     <Style Selector="^ StackPanel">
       <Setter Property="Spacing" Value="4"/>

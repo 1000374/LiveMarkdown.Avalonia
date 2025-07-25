@@ -1,7 +1,8 @@
+using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 
-namespace Avalonia.LiveMarkdown.Demo;
+namespace LiveMarkdown.Avalonia.Demo;
 
 public class App : Application
 {

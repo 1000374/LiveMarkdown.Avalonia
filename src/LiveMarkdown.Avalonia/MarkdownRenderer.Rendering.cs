@@ -2,6 +2,7 @@
 
 using System.Runtime.CompilerServices;
 using AsyncImageLoader;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Layout;
@@ -14,7 +15,7 @@ using Markdig.Syntax;
 using Markdig.Syntax.Inlines;
 using AvaloniaDocs = Avalonia.Controls.Documents;
 
-namespace Avalonia.LiveMarkdown;
+namespace LiveMarkdown.Avalonia;
 
 public partial class MarkdownRenderer
 {

@@ -1,8 +1,9 @@
+using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 
-namespace Avalonia.LiveMarkdown.Demo;
+namespace LiveMarkdown.Avalonia.Demo;
 
 public partial class MainWindow : Window
 {

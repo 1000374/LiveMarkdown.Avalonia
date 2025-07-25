@@ -2,12 +2,13 @@
 // @author https://github.com/AuroraZiling
 // @author https://github.com/SlimeNull
 
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Logging;
 using Avalonia.Threading;
 using Markdig;
 
-namespace Avalonia.LiveMarkdown;
+namespace LiveMarkdown.Avalonia;
 
 public partial class MarkdownRenderer : Control
 {

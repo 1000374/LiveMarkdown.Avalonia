@@ -3,16 +3,16 @@
 [![netstandard2.0](https://img.shields.io/badge/netstandard-2.0-blue.svg)](https://docs.microsoft.com/en-us/dotnet/standard/net-standard)
 [![Avalonia](https://img.shields.io/badge/Avalonia-11-blue.svg)](https://avaloniaui.net/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
-[![GitHub issues](https://img.shields.io/github/issues/DearVa/Avalonia.LiveMarkdown.svg)](https://github.com/DearVa/Avalonia.LiveMarkdown/issues)
-[![NuGet](https://img.shields.io/nuget/v/Avalonia.LiveMarkdown.svg)](https://www.nuget.org/packages/Avalonia.LiveMarkdown/)
+[![GitHub issues](https://img.shields.io/github/issues/DearVa/LiveMarkdown.Avalonia.svg)](https://github.com/DearVa/LiveMarkdown.Avalonia/issues)
+[![NuGet](https://img.shields.io/nuget/v/LiveMarkdown.Avalonia.svg)](https://www.nuget.org/packages/LiveMarkdown.Avalonia/)
 
-![demo.gif](https://raw.githubusercontent.com/DearVa/Avalonia.LiveMarkdown/main/img/demo.gif)
+![demo.gif](https://raw.githubusercontent.com/DearVa/LiveMarkdown.Avalonia/main/img/demo.gif)
 
 ---
 
-## About `Avalonia.LiveMarkdown`
+## 👋 Introduction
 
-`Avalonia.LiveMarkdown` is a High-performance Markdown viewer for Avalonia applications.
+`LiveMarkdown.Avalonia` is a High-performance Markdown viewer for Avalonia applications.
 It supports **real-time rendering** of Markdown content, so it's ideal for applications that require dynamic text updating, **especially when streaming large model outputs**.
 
 ## ⭐ Features
@@ -51,7 +51,7 @@ It supports **real-time rendering** of Markdown content, so it's ideal for appli
 You can install the latest version from NuGet CLI:
 
 ```bash
-dotnet add package Avalonia.LiveMarkdown
+dotnet add package LiveMarkdown.Avalonia
 ```
 
 or use the NuGet Package Manager in your IDE.
@@ -65,7 +65,7 @@ or use the NuGet Package Manager in your IDE.
 
   <Application.Styles>
     <!-- Your other styles here -->
-    <StyleInclude Source="avares://Avalonia.LiveMarkdown/Styles.axaml"/>
+    <StyleInclude Source="avares://LiveMarkdown.Avalonia/Styles.axaml"/>
   </Application.Styles>
 
   <Application.Resources>
@@ -83,7 +83,7 @@ or use the NuGet Package Manager in your IDE.
 Add the `MarkdownView` control to your `.axaml` file:
 ```xml
 <YourControl
-  xmlns:md="clr-namespace:Avalonia.LiveMarkdown;assembly=Avalonia.LiveMarkdown">
+  xmlns:md="clr-namespace:LiveMarkdown.Avalonia;assembly=LiveMarkdown.Avalonia">
   <md:MarkdownRenderer x:Name="MarkdownRenderer"/>
 </YourControl>
 ```
@@ -107,7 +107,7 @@ markdownBuilder.Clear();
 
 ## 🪄 Style Customization
 
-Markdown elements can be styled using Avalonia's powerful styling system. You can override the [default styles](https://github.com/DearVa/Avalonia.LiveMarkdown/blob/main/src/Avalonia.LiveMarkdown/Styles.axaml) by defining your own styles in your application styles.
+Markdown elements can be styled using Avalonia's powerful styling system. You can override the [default styles](https://github.com/DearVa/LiveMarkdown.Avalonia/blob/main/src/LiveMarkdown.Avalonia/Styles.axaml) by defining your own styles in your application styles.
 
 Avalonia Styling Docs: 
 - [Avalonia Styles](https://docs.avaloniaui.net/docs/styling)
