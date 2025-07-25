@@ -10,7 +10,11 @@ namespace Avalonia.LiveMarkdown;
 
 public class InlineHyperlink : InlineUIContainer
 {
-    public Span Content => underline;
+    public object? Content
+    {
+        get => button.Content;
+        set => button.Content = value;
+    }
 
     public static readonly DirectProperty<InlineHyperlink, Uri?> HRefProperty = AvaloniaProperty.RegisterDirect<InlineHyperlink, Uri?>(
         nameof(HRef), o => o.HRef, (o, v) => o.HRef = v);
@@ -25,23 +29,14 @@ public class InlineHyperlink : InlineUIContainer
         }
     }
 
-    private readonly Underline underline;
+    private readonly Button button;
 
     public InlineHyperlink()
     {
-        underline = new Underline();
-
-        var textBlock = new TextBlock
-        {
-            Classes = { "InlineHyperlink" },
-            Inlines = [underline]
-        };
-
-        var button = new Button
+        button = new Button
         {
             Classes = { "InlineHyperlink" },
             Cursor = new Cursor(StandardCursorType.Hand),
-            Content = textBlock,
             [!ToolTip.TipProperty] = this[!HRefProperty]
         };
         button.Click += HandleButtonClick;

@@ -12,7 +12,6 @@ using Markdig.Extensions.Tables;
 using Markdig.Extensions.TaskLists;
 using Markdig.Syntax;
 using Markdig.Syntax.Inlines;
-using ZLinq;
 using AvaloniaDocs = Avalonia.Controls.Documents;
 
 namespace Avalonia.LiveMarkdown;
@@ -99,8 +98,12 @@ public partial class MarkdownRenderer
                     Uri.TryCreate(autolink.Url, UriKind.RelativeOrAbsolute, out var uri);
                     avaloniaInline.HRef = uri;
 
-                    if (avaloniaInline.Content.Inlines is [AvaloniaDocs.Run run]) run.Text = autolink.Url;
-                    else avaloniaInline.Content.Inlines.Add(new AvaloniaDocs.Run(autolink.Url));
+                    if (avaloniaInline.Content is SelectableTextBlock selectableTextBlock) selectableTextBlock.Text = autolink.Url;
+                    else avaloniaInline.Content = new SelectableTextBlock
+                    {
+                        Classes = { "Autolink" },
+                        Text = autolink.Url
+                    };
 
                     return true;
                 })
@@ -180,8 +183,6 @@ public partial class MarkdownRenderer
         private readonly InlinesProxy proxy;
 
         public InlinesNode(AvaloniaDocs.Span span) : this(span, span.Inlines) { }
-
-        public InlinesNode(InlineHyperlink inlineHyperlink) : this(inlineHyperlink, inlineHyperlink.Content.Inlines) { }
 
         private InlinesNode(AvaloniaDocs.Inline inline, AvaloniaDocs.InlineCollection inlines)
         {
@@ -289,8 +290,12 @@ public partial class MarkdownRenderer
         }
     }
 
-    private class LinkInlineNode() : InlinesNode(new InlineHyperlink())
+    private class LinkInlineNode : InlineNode
     {
+        public override AvaloniaDocs.Inline Inline => inlineHyperlink;
+
+        private readonly InlineHyperlink inlineHyperlink = new();
+
         protected override bool IsCompatible(MarkdownObject markdownObject)
         {
             return markdownObject is LinkInline;
@@ -308,57 +313,37 @@ public partial class MarkdownRenderer
 
             if (linkInline.IsImage && uri is not null)
             {
-                // img.DoubleTapped += (_, _) =>
-                // {
-                //     Console.WriteLine(uri?.ToString());
-                // };
-
                 Image img;
-                if (Inlines is [AvaloniaDocs.InlineUIContainer inlineUIContainer])
+                if (inlineHyperlink.Content is Image image)
                 {
-                    if (inlineUIContainer.Child is Image image)
-                    {
-                        img = image;
-                    }
-                    else
-                    {
-                        inlineUIContainer.Child = img = CreateImage();
-                    }
+                    img = image;
                 }
                 else
                 {
-                    Inlines.Clear();
-                    Inlines.Add(new AvaloniaDocs.InlineUIContainer(img = CreateImage()));
+                    inlineHyperlink.Content = img = new Image
+                    {
+                        Classes = { "Link" },
+                    };
                 }
                 ImageLoader.SetSource(img, linkInline.Url);
-
-                return true;
-
-                Image CreateImage() => new()
-                {
-                    Classes = { "Link" },
-                };
             }
-
-            var inlineHyperlink = (InlineHyperlink)Inline;
-            inlineHyperlink.HRef = uri;
-
-            if (linkInline.Label != null)
+            else if (linkInline.Label != null)
             {
-                if (Inlines is [AvaloniaDocs.Run run])
+                if (inlineHyperlink.Content is SelectableTextBlock selectableTextBlock)
                 {
-                    run.Text = linkInline.Label;
+                    selectableTextBlock.Text = linkInline.Label;
                 }
                 else
                 {
-                    Inlines.Clear();
-                    Inlines.Add(new AvaloniaDocs.Run(linkInline.Label));
+                    inlineHyperlink.Content = new SelectableTextBlock
+                    {
+                        Classes = { "Link" },
+                        Text = linkInline.Label
+                    };
                 }
             }
-            else
-            {
-                base.UpdateCore(markdownObject, change, cancellationToken);
-            }
+
+            inlineHyperlink.HRef = uri;
 
             return true;
         }
@@ -526,7 +511,7 @@ public partial class MarkdownRenderer
             }
 
             var rowIndex = 0;
-            foreach (var row in table.AsValueEnumerable().OfType<TableRow>())
+            foreach (var row in table.OfType<TableRow>())
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
@@ -535,7 +520,7 @@ public partial class MarkdownRenderer
                     container.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
                 }
 
-                foreach (var (cell, columnIndex) in row.AsValueEnumerable().OfType<TableCell>().Select((c, i) => (c, i)))
+                foreach (var (cell, columnIndex) in row.OfType<TableCell>().Select((c, i) => (c, i)))
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
@@ -875,7 +860,7 @@ public partial class MarkdownRenderer
             if (codeBlock.Lines.Lines is null) return false;
 
             var inlines = codeTextBlock.Inlines ?? throw new InvalidOperationException("This should never happen");
-            foreach (var (slice, lineIndex) in codeBlock.Lines.Lines.AsValueEnumerable().Take(codeBlock.Lines.Count).Select((l, i) => (l.Slice, i)))
+            foreach (var (slice, lineIndex) in codeBlock.Lines.Lines.Take(codeBlock.Lines.Count).Select((l, i) => (l.Slice, i)))
             {
                 var inlineIndex = lineIndex * 2;
 

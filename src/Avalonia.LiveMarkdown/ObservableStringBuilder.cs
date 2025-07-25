@@ -6,14 +6,28 @@ public readonly record struct ObservableStringBuilderChangedEventArgs(string New
 
 public delegate void ObservableStringBuilderChangedEventHandler(in ObservableStringBuilderChangedEventArgs e);
 
+/// <summary>
+/// A string builder that raises events when its content changes.
+/// </summary>
 public class ObservableStringBuilder
 {
+    /// <summary>
+    /// Gets the current length of the string builder.
+    /// </summary>
     public int Length => stringBuilder.Length;
 
+    /// <summary>
+    /// Raised when the content of the string builder changes.
+    /// </summary>
     public event ObservableStringBuilderChangedEventHandler? Changed;
 
     private readonly StringBuilder stringBuilder = new();
 
+    /// <summary>
+    /// Appends a string to the string builder and raises an event.
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
     public ObservableStringBuilder Append(string? value)
     {
         if (string.IsNullOrEmpty(value)) return this;
@@ -26,6 +40,10 @@ public class ObservableStringBuilder
         return this;
     }
 
+    /// <summary>
+    /// Clears the string builder and raises an event with the previous content.
+    /// </summary>
+    /// <returns></returns>
     public ObservableStringBuilder Clear()
     {
         var length = stringBuilder.Length;

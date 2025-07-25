@@ -37,7 +37,7 @@ It supports **real-time rendering** of Markdown content, so it's ideal for appli
 - [x] Hyperlink support
 - [x] Table support
 - [x] Code block syntax highlighting
-- [ ] Image support
+- [x] Image support
 - [ ] Selectable text across elements
 - [ ] LaTeX support
 - [ ] HTML rendering

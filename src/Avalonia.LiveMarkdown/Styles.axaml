@@ -111,6 +111,7 @@
       </Style>
 
       <Style Selector="^ Button.CodeBlock">
+        <Setter Property="Foreground" Value="{DynamicResource ForegroundColor}"/>
         <Setter Property="Grid.Column" Value="1"/>
         <Setter Property="Margin" Value="4,6"/>
         <Setter Property="VerticalAlignment" Value="Bottom"/>
@@ -118,12 +119,11 @@
         <Setter Property="Template">
           <ControlTemplate>
             <Border
-              Name="RootBorder"
+              Name="RootBorder" Padding="2"
               Background="{TemplateBinding Background}"
               BorderBrush="{TemplateBinding BorderBrush}"
               BorderThickness="{TemplateBinding BorderThickness}"
-              CornerRadius="{TemplateBinding CornerRadius}"
-              TextElement.Foreground="{TemplateBinding Foreground}">
+              CornerRadius="{TemplateBinding CornerRadius}">
               <Border.Transitions>
                 <Transitions>
                   <DoubleTransition
@@ -131,38 +131,22 @@
                 </Transitions>
               </Border.Transitions>
 
-              <Image
+              <Viewbox
                 Width="18" Height="18">
-                <Image.Source>
-                  <DrawingImage>
-                    <DrawingImage.Drawing>
-                      <DrawingGroup ClipGeometry="M0,0 V24 H24 V0 H0 Z">
-                        <GeometryDrawing>
-                          <GeometryDrawing.Pen>
-                            <Pen
-                              Brush="{TemplateBinding Foreground}"
-                              LineCap="Round" LineJoin="Round"
-                              Thickness="2"/>
-                          </GeometryDrawing.Pen>
-                          <GeometryDrawing.Geometry>
-                            <RectangleGeometry
-                              RadiusX="2" RadiusY="2"
-                              Rect="8,8,14,14"/>
-                          </GeometryDrawing.Geometry>
-                        </GeometryDrawing>
-                        <GeometryDrawing Geometry="F1 M24,24z M0,0z M4,16C2.9,16,2,15.1,2,14L2,4C2,2.9,2.9,2,4,2L14,2C15.1,2,16,2.9,16,4">
-                          <GeometryDrawing.Pen>
-                            <Pen
-                              Brush="{TemplateBinding Foreground}"
-                              LineCap="Round" LineJoin="Round"
-                              Thickness="2"/>
-                          </GeometryDrawing.Pen>
-                        </GeometryDrawing>
-                      </DrawingGroup>
-                    </DrawingImage.Drawing>
-                  </DrawingImage>
-                </Image.Source>
-              </Image>
+                <Path
+                  Width="24" Height="24"
+                  Stroke="{TemplateBinding Foreground}"
+                  StrokeThickness="2">
+                  <Path.Data>
+                    <GeometryGroup>
+                      <RectangleGeometry
+                        RadiusX="2" RadiusY="2"
+                        Rect="8,8,14,14"/>
+                      <StreamGeometry>F1 M24,24z M0,0z M4,16C2.9,16,2,15.1,2,14L2,4C2,2.9,2.9,2,4,2L14,2C15.1,2,16,2.9,16,4</StreamGeometry>
+                    </GeometryGroup>
+                  </Path.Data>
+                </Path>
+              </Viewbox>
             </Border>
           </ControlTemplate>
         </Setter>
@@ -223,13 +207,13 @@
       </Setter.Value>
     </Setter>
 
+    <Style Selector="^ SelectableTextBlock">
+      <Setter Property="Foreground" Value="DodgerBlue"/>
+      <Setter Property="TextDecorations" Value="Underline"/>
+    </Style>
+
     <Style Selector="^:pointerover /template/ ContentPresenter">
       <Setter Property="Background" Value="Transparent"/>
     </Style>
-  </Style>
-
-  <Style Selector="TextBlock.InlineHyperlink">
-    <Setter Property="Foreground" Value="DodgerBlue"/>
-    <Setter Property="TextDecorations" Value="Underline"/>
   </Style>
 </Styles>
