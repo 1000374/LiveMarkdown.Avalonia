@@ -1,0 +1,32 @@
+<Project>
+    <PropertyGroup>
+        <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+        <MicrosoftPackageVersion>9.0.5</MicrosoftPackageVersion>
+        <SemanticKernelVersion>1.54.0</SemanticKernelVersion>
+        <AvaloniaVersion>11.3.0</AvaloniaVersion>
+        <TokenizersVersion>1.2.0</TokenizersVersion>
+    </PropertyGroup>
+    <ItemGroup>
+        <!-- Base packages -->
+        <PackageVersion Include="PolySharp" Version="1.15.0"/>
+        <PackageVersion Include="ZLinq" Version="1.5.0"/>
+        <!-- Avalonia packages -->
+        <PackageVersion Include="AsyncImageLoader.Avalonia" Version="3.3.0"/>
+        <PackageVersion Include="Avalonia" Version="$(AvaloniaVersion)"/>
+        <PackageVersion Include="Avalonia.Themes.Simple" Version="$(AvaloniaVersion)"/>
+        <PackageVersion Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)"/>
+        <PackageVersion Include="Avalonia.Fonts.Inter" Version="$(AvaloniaVersion)"/>
+        <PackageVersion Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)"/>
+        <PackageVersion Include="Avalonia.Desktop" Version="$(AvaloniaVersion)"/>
+        <!-- Markdown packages -->
+        <PackageVersion Include="ColorCode.Core" Version="2.0.15"/>
+        <PackageVersion Include="Markdig" Version="0.41.3"/>
+        <!-- NUnit packages -->
+        <PackageVersion Include="BenchmarkDotNet" Version="0.15.1"/>
+        <PackageVersion Include="coverlet.collector" Version="6.0.3"/>
+        <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.12.0"/>
+        <PackageVersion Include="NUnit" Version="4.3.2"/>
+        <PackageVersion Include="NUnit.Analyzers" Version="4.5.0"/>
+        <PackageVersion Include="NUnit3TestAdapter" Version="4.6.0"/>
+    </ItemGroup>
+</Project>
