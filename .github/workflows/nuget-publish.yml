@@ -17,6 +17,25 @@ jobs:
         with:
           dotnet-version: '9.0.x'
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+           node-version: '20'
+
+      - name: Install conventional-changelog-cli
+        run: npm install -g conventional-changelog-cli
+
+      - name: Generate CHANGELOG.md
+        run: conventional-changelog -p angular -i CHANGELOG.md -s
+
+      - name: Read changelog
+        id: changelog
+        run: |
+          $notes = Get-Content CHANGELOG.md | Out-String
+          echo "release_notes<<EOF" >> $env:GITHUB_ENV
+          echo "$notes" >> $env:GITHUB_ENV
+          echo "EOF" >> $env:GITHUB_ENV
+
       - name: Restore dependencies
         run: dotnet restore src/LiveMarkdown.Avalonia/LiveMarkdown.Avalonia.csproj
 
@@ -32,7 +51,7 @@ jobs:
           } else {
             $copyright = "Copyright 2025-$year DearVa"
           }
-          dotnet pack src/LiveMarkdown.Avalonia/LiveMarkdown.Avalonia.csproj --configuration Release --no-build -p:PackageVersion=$version -p:Copyright="$copyright" -o ${{ github.workspace }}/out
+          dotnet pack src/LiveMarkdown.Avalonia/LiveMarkdown.Avalonia.csproj --configuration Release --no-build -p:PackageVersion=$version -p:Copyright="$copyright" -p:PackageReleaseNotes="${{ env.release_notes }}" -o ${{ github.workspace }}/out
 
       - name: Publish to NuGet
         run: |
