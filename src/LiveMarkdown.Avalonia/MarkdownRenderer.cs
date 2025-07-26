@@ -2,8 +2,10 @@
 // @author https://github.com/AuroraZiling
 // @author https://github.com/SlimeNull
 
+using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 using Avalonia.Logging;
 using Avalonia.Threading;
 using Markdig;
@@ -33,6 +35,35 @@ public partial class MarkdownRenderer : Control
                 CommitChange(new ObservableStringBuilderChangedEventArgs(value.ToString(), 0, value.Length));
             }
         }
+    }
+
+    /// <summary>
+    /// Routed event that is raised when an inline hyperlink is clicked.
+    /// </summary>
+    public static readonly RoutedEvent<InlineHyperlinkClickedEventArgs> InlineHyperlinkClickedEvent =
+        RoutedEvent.Register<InlineHyperlink, InlineHyperlinkClickedEventArgs>(
+            nameof(InlineHyperlinkClicked),
+            RoutingStrategies.Bubble);
+
+    /// <summary>
+    /// Raised when an inline hyperlink is clicked.
+    /// </summary>
+    public event EventHandler<InlineHyperlinkClickedEventArgs>? InlineHyperlinkClicked
+    {
+        add => AddHandler(InlineHyperlinkClickedEvent, value);
+        remove => RemoveHandler(InlineHyperlinkClickedEvent, value);
+    }
+
+    public static readonly StyledProperty<ICommand?> InlineHyperlinkCommandProperty = AvaloniaProperty.Register<MarkdownRenderer, ICommand?>(
+        nameof(InlineHyperlinkCommand));
+
+    /// <summary>
+    /// Command that is executed when an inline hyperlink is clicked. Command parameter is <see cref="InlineHyperlinkClickedEventArgs"/>.
+    /// </summary>
+    public ICommand? InlineHyperlinkCommand
+    {
+        get => GetValue(InlineHyperlinkCommandProperty);
+        set => SetValue(InlineHyperlinkCommandProperty, value);
     }
 
     private ObservableStringBuilderChangedEventArgs? pendingChange;
@@ -102,4 +133,23 @@ public partial class MarkdownRenderer : Control
 
         InvalidateArrange();
     }
+
+    internal void RaiseInlineHyperlinkClicked(InlineHyperlink sender)
+    {
+        var args = new InlineHyperlinkClickedEventArgs(InlineHyperlinkClickedEvent, sender, sender.HRef);
+        RaiseEvent(args);
+        if (InlineHyperlinkCommand?.CanExecute(args) is true) InlineHyperlinkCommand.Execute(args);
+    }
+}
+
+
+/// <summary>
+/// Event arguments for the InlineHyperlinkClicked event.
+/// </summary>
+/// <param name="routedEvent"></param>
+/// <param name="source">Must be <see cref="InlineHyperlink"/></param>
+/// <param name="href"></param>
+public class InlineHyperlinkClickedEventArgs(RoutedEvent routedEvent, object source, Uri? href) : RoutedEventArgs(routedEvent, source)
+{
+    public Uri? HRef => href;
 }

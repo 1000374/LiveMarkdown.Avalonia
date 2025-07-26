@@ -71,8 +71,7 @@ public class InlineHyperlink : InlineUIContainer
 
     private void HandleButtonClick(object? sender, RoutedEventArgs e)
     {
-        if (HRef is null) return;
-
+        this.GetLogicalAncestors().OfType<MarkdownRenderer>().FirstOrDefault()?.RaiseInlineHyperlinkClicked(this);
     }
 
     private void UpdatePseudoClasses()
