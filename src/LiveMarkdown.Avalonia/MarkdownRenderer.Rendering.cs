@@ -99,12 +99,12 @@ public partial class MarkdownRenderer
                     Uri.TryCreate(autolink.Url, UriKind.RelativeOrAbsolute, out var uri);
                     avaloniaInline.HRef = uri;
 
-                    if (avaloniaInline.Content is SelectableTextBlock selectableTextBlock) selectableTextBlock.Text = autolink.Url;
-                    else avaloniaInline.Content = new SelectableTextBlock
+                    if (avaloniaInline.Inlines is [AvaloniaDocs.Run run]) run.Text = autolink.Url;
+                    else Reset(avaloniaInline.Inlines, new AvaloniaDocs.Run
                     {
                         Classes = { "Autolink" },
                         Text = autolink.Url
-                    };
+                    });
 
                     return true;
                 })
@@ -184,6 +184,8 @@ public partial class MarkdownRenderer
         private readonly InlinesProxy proxy;
 
         public InlinesNode(AvaloniaDocs.Span span) : this(span, span.Inlines) { }
+
+        public InlinesNode(InlineHyperlink inlineHyperlink) : this(inlineHyperlink, inlineHyperlink.Inlines) { }
 
         private InlinesNode(AvaloniaDocs.Inline inline, AvaloniaDocs.InlineCollection inlines)
         {
@@ -291,12 +293,8 @@ public partial class MarkdownRenderer
         }
     }
 
-    private class LinkInlineNode : InlineNode
+    private class LinkInlineNode() : InlinesNode(new InlineHyperlink())
     {
-        public override AvaloniaDocs.Inline Inline => inlineHyperlink;
-
-        private readonly InlineHyperlink inlineHyperlink = new();
-
         protected override bool IsCompatible(MarkdownObject markdownObject)
         {
             return markdownObject is LinkInline;
@@ -310,38 +308,29 @@ public partial class MarkdownRenderer
             var linkInline = Unsafe.As<LinkInline>(markdownObject);
             if (linkInline.Url == null) return false;
 
+            var inlineHyperlink = Unsafe.As<InlineHyperlink>(Inline);
             Uri.TryCreate(linkInline.Url, UriKind.Absolute, out var uri);
 
-            if (linkInline.IsImage && uri is not null)
+            if (linkInline.IsImage)
             {
                 Image img;
-                if (inlineHyperlink.Content is Image image)
+                if (inlineHyperlink.Image is { } image)
                 {
                     img = image;
                 }
                 else
                 {
-                    inlineHyperlink.Content = img = new Image
+                    inlineHyperlink.Image = img = new Image
                     {
                         Classes = { "Link" },
                     };
                 }
                 ImageLoader.SetSource(img, linkInline.Url);
             }
-            else if (linkInline.Label != null)
+            else
             {
-                if (inlineHyperlink.Content is SelectableTextBlock selectableTextBlock)
-                {
-                    selectableTextBlock.Text = linkInline.Label;
-                }
-                else
-                {
-                    inlineHyperlink.Content = new SelectableTextBlock
-                    {
-                        Classes = { "Link" },
-                        Text = linkInline.Label
-                    };
-                }
+                inlineHyperlink.Image = null;
+                base.UpdateCore(markdownObject, change, cancellationToken);
             }
 
             inlineHyperlink.HRef = uri;

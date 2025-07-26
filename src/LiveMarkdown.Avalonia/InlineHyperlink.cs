@@ -4,22 +4,38 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
-using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.LogicalTree;
 
 namespace LiveMarkdown.Avalonia;
 
 public class InlineHyperlink : InlineUIContainer
 {
-    public object? Content
+    /// <summary>
+    /// Gets the inlines collection of the hyperlink.
+    /// </summary>
+    public InlineCollection Inlines { get; }
+
+    /// <summary>
+    /// Gets or sets the image of the hyperlink. If set to null, the hyperlink will display a selectable text block instead.
+    /// </summary>
+    public Image? Image
     {
-        get => button.Content;
-        set => button.Content = value;
+        get => button.Content as Image;
+        set
+        {
+            if (value is null) button.Content = selectableTextBlock;
+            else button.Content = value;
+        }
     }
 
     public static readonly DirectProperty<InlineHyperlink, Uri?> HRefProperty = AvaloniaProperty.RegisterDirect<InlineHyperlink, Uri?>(
         nameof(HRef), o => o.HRef, (o, v) => o.HRef = v);
 
+    /// <summary>
+    /// Gets or sets the hyperlink reference (HRef) of the hyperlink. This must be called from the UI thread.
+    /// If set to null, the hyperlink will be disabled and will not respond to clicks.
+    /// </summary>
     public Uri? HRef
     {
         get;
@@ -30,14 +46,21 @@ public class InlineHyperlink : InlineUIContainer
         }
     }
 
+    private readonly SelectableTextBlock selectableTextBlock;
     private readonly Button button;
 
     public InlineHyperlink()
     {
+        selectableTextBlock = new SelectableTextBlock
+        {
+            Classes = { "InlineHyperlink" }
+        };
+        Inlines = selectableTextBlock.Inlines ?? throw new NotSupportedException("This should never happen.");
+
         button = new Button
         {
             Classes = { "InlineHyperlink" },
-            Cursor = new Cursor(StandardCursorType.Hand),
+            Content = selectableTextBlock,
             [!ToolTip.TipProperty] = this[!HRefProperty]
         };
         button.Click += HandleButtonClick;

@@ -402,4 +402,10 @@ public partial class MarkdownRenderer
             return cursor;
         }
     }
+
+    private static void Reset<T>(ICollection<T> collection, T item)
+    {
+        collection.Clear();
+        collection.Add(item);
+    }
 }

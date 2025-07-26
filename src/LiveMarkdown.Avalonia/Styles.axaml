@@ -195,14 +195,13 @@
   </Style>
 
   <Style Selector="Button.InlineHyperlink">
-    <Setter Property="Background" Value="Transparent"/>
-    <Setter Property="BorderThickness" Value="0"/>
-    <Setter Property="Margin" Value="0"/>
-    <Setter Property="Padding" Value="0"/>
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <ContentPresenter Content="{TemplateBinding Content}"/>
+          <Border
+            Background="Transparent" Cursor="Hand">
+            <ContentPresenter Content="{TemplateBinding Content}"/>
+          </Border>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -210,6 +209,7 @@
     <Style Selector="^ SelectableTextBlock">
       <Setter Property="Foreground" Value="DodgerBlue"/>
       <Setter Property="TextDecorations" Value="Underline"/>
+      <Setter Property="IsHitTestVisible" Value="False"/>
     </Style>
 
     <Style Selector="^:pointerover /template/ ContentPresenter">
