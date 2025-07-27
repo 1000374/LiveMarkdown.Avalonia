@@ -5,6 +5,9 @@
   xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:md="clr-namespace:LiveMarkdown.Avalonia">
   <Style Selector="md|MarkdownRenderer">
+    <Setter Property="Cursor" Value="IBeam"/>
+    <Setter Property="Focusable" Value="True"/>
+
     <Style Selector="^ StackPanel">
       <Setter Property="Spacing" Value="4"/>
     </Style>
@@ -111,6 +114,7 @@
       </Style>
 
       <Style Selector="^ Button.CodeBlock">
+        <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="Foreground" Value="{DynamicResource ForegroundColor}"/>
         <Setter Property="Grid.Column" Value="1"/>
         <Setter Property="Margin" Value="4,6"/>

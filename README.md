@@ -24,6 +24,13 @@ It supports **real-time rendering** of Markdown content, so it's ideal for appli
 - 📊 **Table support**: Render tables with proper formatting
 - 📜 **Code block syntax highlighting**: Supports multiple languages with [ColorCode](https://github.com/CommunityToolkit/ColorCode-Universal)
 - 🖼️ **Image support**: Load images asynchronously with [AsyncImageLoader.Avalonia](https://github.com/AvaloniaUtils/AsyncImageLoader.Avalonia)
+- ✍️ **Selectable text**: Text can be selected across different Markdown elements
+
+> [!NOTE]
+> There is a bug when selecting text inside an inline that holds a `InlineUIElement`,
+> causing the selection is offset by 1 character after each `InlineUIElement`.
+> This bug is Avalonia's, and they set all related classes as `internal`,
+> so I can do nothing with it.
 
 > [!NOTE]
 > This library currently only supports `Append` and `Clear` operations on the Markdown content, which is enough for LLM streaming scenarios.
@@ -38,7 +45,7 @@ It supports **real-time rendering** of Markdown content, so it's ideal for appli
 - [x] Table support
 - [x] Code block syntax highlighting
 - [x] Image support
-- [ ] Selectable text across elements
+- [x] Selectable text across elements
 - [ ] LaTeX support
 - [ ] HTML rendering
 

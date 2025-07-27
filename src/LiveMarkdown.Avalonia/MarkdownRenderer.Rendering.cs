@@ -2,7 +2,6 @@
 
 using System.Runtime.CompilerServices;
 using AsyncImageLoader;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Layout;
@@ -21,12 +20,6 @@ public partial class MarkdownRenderer
 {
     private abstract class MarkdownNode
     {
-        protected delegate void SelectedTextBlockUpdatedHandler(SelectableTextBlock selectableTextBlock, bool deleted);
-
-        protected static event SelectedTextBlockUpdatedHandler? SelectedTextBlockUpdated;
-
-        protected virtual SelectableTextBlock? SelectableTextBlock => null;
-
         /// <summary>
         /// records the source span of the block in the Markdown document.
         /// </summary>
@@ -53,7 +46,6 @@ public partial class MarkdownRenderer
                 result,
                 markdownObject.Span);
             span = markdownObject.Span;
-            if (SelectableTextBlock is { } selectableTextBlock) SelectedTextBlockUpdated?.Invoke(selectableTextBlock, !result);
             return result;
         }
 
@@ -254,8 +246,6 @@ public partial class MarkdownRenderer
 
     private class CodeInlineNode : InlineNode
     {
-        protected override SelectableTextBlock SelectableTextBlock => selectableTextBlock;
-
         public override AvaloniaDocs.Inline Inline => inlineUIContainer;
 
         private readonly AvaloniaDocs.InlineUIContainer inlineUIContainer;
@@ -418,8 +408,6 @@ public partial class MarkdownRenderer
     /// </summary>
     private class InlineCollectionNode : BlockNode
     {
-        protected override SelectableTextBlock SelectableTextBlock => selectableTextBlock;
-
         public override Control Control => selectableTextBlock;
 
         private readonly InlinesNode inlinesNode;
@@ -788,8 +776,6 @@ public partial class MarkdownRenderer
 
     private class CodeBlockNode : BlockNode
     {
-        protected override SelectableTextBlock SelectableTextBlock => codeTextBlock;
-
         public override Control Control { get; }
 
         private SyntaxHighlighting? syntaxHighlighting;
@@ -1070,30 +1056,9 @@ public partial class MarkdownRenderer
 
     private class DocumentNode : ContainerBlockNode
     {
-        public IReadOnlyDictionary<SelectableTextBlock, Rect> SelectableTextBlockBounds => selectableTextBlockBounds;
-
-        private readonly Dictionary<SelectableTextBlock, Rect> selectableTextBlockBounds = new();
-
         public DocumentNode()
         {
             Classes[0] = "MarkdownDocument";
-            SelectedTextBlockUpdated += HandleSelectedTextBlockUpdated;
-        }
-
-        ~DocumentNode()
-        {
-            SelectedTextBlockUpdated -= HandleSelectedTextBlockUpdated;
-        }
-
-        private void HandleSelectedTextBlockUpdated(SelectableTextBlock selectableTextBlock, bool deleted)
-        {
-            if (deleted) selectableTextBlockBounds.Remove(selectableTextBlock);
-            else
-            {
-                var bounds = selectableTextBlock.Bounds;
-                var position = selectableTextBlock.TranslatePoint(new Point(bounds.X, bounds.Y), Control) ?? new Point();
-                selectableTextBlockBounds[selectableTextBlock] = new Rect(position, bounds.Size);
-            }
         }
 
         protected override bool IsCompatible(MarkdownObject markdownObject)

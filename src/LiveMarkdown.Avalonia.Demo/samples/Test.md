@@ -4,8 +4,8 @@
 
 - Item One
 - Item Two
-  - Subitem 2.1
-  - Subitem 2.2
+  - Subitem **2.1**
+  - Test inline [Subitem](https://example.com) link 2.2
 - Item Three
 
 ## 2. Code Example
@@ -25,7 +25,7 @@ public class HelloWorld
 | Name   | Age | City    |
 | ------ | --- | ------- |
 | Alice  | 24  | London  |
-| Bob    | 29  | Berlin  |
+| Bob    | 29  | B`erli`n  |
 | Carol  | 31  | Madrid  |
 
 ## 4. Image

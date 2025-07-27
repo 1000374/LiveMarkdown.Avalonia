@@ -5,6 +5,7 @@
 using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Logging;
 using Avalonia.Threading;
@@ -86,9 +87,10 @@ public partial class MarkdownRenderer : Control
         LogicalChildren.Add(documentNode.Control);
         VisualChildren.Add(documentNode.Control);
 
-        //AddHandler(PointerPressedEvent, HandlePointerPressed, RoutingStrategies.Tunnel);
-        //AddHandler(PointerMovedEvent, HandlePointerMoved, RoutingStrategies.Tunnel);
-        //AddHandler(PointerReleasedEvent, HandlePointerReleased, RoutingStrategies.Tunnel);
+        AddHandler(PointerPressedEvent, HandlePointerPressed, RoutingStrategies.Tunnel);
+        AddHandler(PointerMovedEvent, HandlePointerMoved, RoutingStrategies.Tunnel);
+        AddHandler(PointerReleasedEvent, HandlePointerReleased, RoutingStrategies.Tunnel);
+        AddHandler(KeyDownEvent, HandleKeyDown, RoutingStrategies.Tunnel);
     }
 
     protected override async void ArrangeCore(Rect finalRect)
