@@ -17,7 +17,7 @@ It supports **real-time rendering** of Markdown content, so it's ideal for appli
 
 ## ⭐ Features
 
-- 🚀 **High-performance rendering powered by [Markdig](https://github.com/xoofo/markdig)**
+- 🚀 **High-performance rendering powered by [Markdig](https://github.com/xoofx/markdig)**
 - 🔄 **Real-time updates**: Automatically re-renders changes in Markdown content
 - 🎨 **Customizable styles**: Easily style Markdown elements using Avalonia's powerful styling system
 - 🔗 **Hyperlink support**: Clickable links with customizable behavior
