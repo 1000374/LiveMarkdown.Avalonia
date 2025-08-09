@@ -13,8 +13,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AsyncImageLoader.Avalonia"/>
         <PackageReference Include="Avalonia"/>
+        <PackageReference Include="Avalonia.Svg" />
         <PackageReference Include="ColorCode.Core"/>
         <PackageReference Include="Markdig"/>
         <PackageReference Include="PolySharp">

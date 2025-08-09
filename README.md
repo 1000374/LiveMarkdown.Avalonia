@@ -45,6 +45,8 @@ It supports **real-time rendering** of Markdown content, so it's ideal for appli
 - [x] Table support
 - [x] Code block syntax highlighting
 - [x] Image support
+  - [x] Bitmap
+  - [x] SVG
 - [x] Selectable text across elements
 - [ ] LaTeX support
 - [ ] HTML rendering
@@ -137,9 +139,9 @@ Distributed under the Apache 2.0 License. See [LICENSE](LICENSE) for more inform
 - **markdig** - [BSD-2-Clause License](https://github.com/xoofx/markdig/blob/master/license.txt)
     - Markdown parser for Everywhere.Markdown rendering
     - Source repo: https://github.com/xoofx/markdig
-- **AsyncImageLoader.Avalonia** - [MIT License](https://github.com/AvaloniaUtils/AsyncImageLoader.Avalonia/blob/master/LICENSE)
-    - Asynchronous image loading for Avalonia
-    - Source repo: https://github.com/AvaloniaUtils/AsyncImageLoader.Avalonia
+- **Svg.Skia** - [MIT License](https://github.com/wieslawsoltes/Svg.Skia/blob/master/LICENSE.TXT)
+    - Svg rendering for images
+    - Source repo: https://github.com/wieslawsoltes/Svg.Skia
 - **ColorCode** - [MIT License](https://github.com/CommunityToolkit/ColorCode-Universal/blob/main/license.md)
     - Syntax highlighting for code blocks
     - Source repo: https://github.com/CommunityToolkit/ColorCode-Universal

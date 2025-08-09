@@ -1,7 +1,6 @@
 ﻿// @author https://github.com/DearVa
 
 using System.Runtime.CompilerServices;
-using AsyncImageLoader;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Layout;
@@ -315,7 +314,7 @@ public partial class MarkdownRenderer
                         Classes = { "Link" },
                     };
                 }
-                ImageLoader.SetSource(img, linkInline.Url);
+                AsyncImageLoader.SetSource(img, linkInline.Url);
             }
             else
             {
