@@ -91,11 +91,14 @@ public partial class MarkdownRenderer
                     avaloniaInline.HRef = uri;
 
                     if (avaloniaInline.Inlines is [AvaloniaDocs.Run run]) run.Text = autolink.Url;
-                    else Reset(avaloniaInline.Inlines, new AvaloniaDocs.Run
-                    {
-                        Classes = { "Autolink" },
-                        Text = autolink.Url
-                    });
+                    else
+                        Reset(
+                            avaloniaInline.Inlines,
+                            new AvaloniaDocs.Run
+                            {
+                                Classes = { "Autolink" },
+                                Text = autolink.Url
+                            });
 
                     return true;
                 })
@@ -975,7 +978,7 @@ public partial class MarkdownRenderer
 
         protected Control control;
 
-        private readonly BlocksProxy proxy;
+        protected readonly BlocksProxy proxy;
 
         public ContainerBlockNode()
         {
@@ -1063,6 +1066,19 @@ public partial class MarkdownRenderer
         protected override bool IsCompatible(MarkdownObject markdownObject)
         {
             return markdownObject is MarkdownDocument;
+        }
+
+        protected override bool UpdateCore(
+            MarkdownObject markdownObject,
+            in ObservableStringBuilderChangedEventArgs change,
+            CancellationToken cancellationToken)
+        {
+            var result = base.UpdateCore(markdownObject, in change, cancellationToken);
+
+            // (#1) DocumentNode is the outest node, so if it has no children, we clear the proxy
+            if (!result) proxy.Clear();
+
+            return result;
         }
     }
 }

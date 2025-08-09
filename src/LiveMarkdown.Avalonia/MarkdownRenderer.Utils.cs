@@ -122,6 +122,12 @@ public partial class MarkdownRenderer
             children.RemoveAt(index);
             Debug.Assert(children.Count == target.Count, "Children count mismatch");
         }
+
+        public void Clear()
+        {
+            target.Clear();
+            children.Clear();
+        }
     }
 
     private static class StringUtils
