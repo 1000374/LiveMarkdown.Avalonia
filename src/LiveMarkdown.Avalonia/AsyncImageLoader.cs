@@ -1,4 +1,6 @@
-﻿using Avalonia;
+﻿using System.ComponentModel;
+using System.Globalization;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
 using Avalonia.Media;
@@ -56,9 +58,29 @@ public class AsyncImageLoader
     /// <returns></returns>
     public static string? GetSvgCss(Image obj) => obj.GetValue(SvgCssProperty);
 
-    public static HttpClient HttpClient { get; set; } = new();
+    /// <summary>
+    /// Attached property for the image cache.
+    /// </summary>
+    public static readonly AttachedProperty<AsyncImageLoaderCache?> CacheProperty =
+        AvaloniaProperty.RegisterAttached<AsyncImageLoader, Image, AsyncImageLoaderCache?>("Cache", RamBasedAsyncImageLoaderCache.Shared);
 
-    public static AsyncImageLoaderCache Cache { get; set; } = new RamBasedAsyncImageLoaderCache();
+    /// <summary>
+    /// Sets the cache for the image loader.
+    /// You can use one of the built-in caches (convert from string), or implement your own.
+    /// built-in caches include: `None`, `Ram`. Default is `Ram`.
+    /// </summary>
+    /// <param name="obj"></param>
+    /// <param name="value"></param>
+    public static void SetCache(Image obj, AsyncImageLoaderCache? value) => obj.SetValue(CacheProperty, value);
+
+    /// <summary>
+    /// Gets the cache for the image loader.
+    /// </summary>
+    /// <param name="obj"></param>
+    /// <returns></returns>
+    public static AsyncImageLoaderCache? GetCache(Image obj) => obj.GetValue(CacheProperty);
+
+    public static HttpClient HttpClient { get; set; } = new();
 
     private readonly static Dictionary<Image, (Task task, CancellationTokenSource cts)> ImageLoadTasks = new();
 
@@ -84,7 +106,8 @@ public class AsyncImageLoader
             return;
         }
 
-        if (Cache.GetImage(newSource!) is { } cachedImage)
+        var cache = sender.GetValue(CacheProperty);
+        if (cache?.GetImage(newSource!) is { } cachedImage)
         {
             sender.Source = cachedImage; // Use the cached image if available
             return;
@@ -104,11 +127,11 @@ public class AsyncImageLoader
             css = $":nth-child(0) {{ font-size: {fontSize}px; font-family: {fontFamily}; color: #{color.R:X2}{color.G:X2}{color.B:X2}; }}";
         }
 
-        var newPair = CreateLoadPair(sender, newSource!, css);
+        var newPair = CreateLoadPair(sender, newSource!, css, cache);
         ImageLoadTasks.Add(sender, newPair);
     }
 
-    private static (Task task, CancellationTokenSource cts) CreateLoadPair(Image image, string source, string? css)
+    private static (Task task, CancellationTokenSource cts) CreateLoadPair(Image image, string source, string? css, AsyncImageLoaderCache? cache)
     {
         var cts = new CancellationTokenSource();
         var task = Task.Run(
@@ -118,11 +141,16 @@ public class AsyncImageLoader
                     {
                         using var response = await HttpClient.GetAsync(source, cts.Token);
                         response.EnsureSuccessStatusCode();
-                        using var stream = await response.Content.ReadAsStreamAsync();
 
-                        var buffer = new byte[16];
                         // check if the stream is svg
+                        var buffer = new byte[16];
+#if NETSTANDARD2_0
+                        using var stream = await response.Content.ReadAsStreamAsync();
                         var bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length, cts.Token);
+#else
+                        await using var stream = await response.Content.ReadAsStreamAsync(cts.Token);
+                        var bytesRead = await stream.ReadAsync(buffer.AsMemory(0, buffer.Length), cts.Token);
+#endif
                         if (bytesRead == 0)
                         {
                             return null;
@@ -170,7 +198,7 @@ public class AsyncImageLoader
                             _ => null // Clear the image source if the result is not a valid image
                         };
 
-                        if (result is not null) Cache.SetImage(source, result);
+                        if (result is not null) cache?.SetImage(source, result);
 
                         image.Source = result;
                     });
@@ -181,6 +209,55 @@ public class AsyncImageLoader
     }
 }
 
+#if NETSTANDARD2_0
+public class AsyncImageLoaderCacheTypeConverter : TypeConverter
+{
+    public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+    {
+        return sourceType == typeof(string);
+    }
+
+    public override object? ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object? value)
+    {
+        if (value is string str)
+        {
+            return str switch
+            {
+                "None" => null,
+                "Ram" => RamBasedAsyncImageLoaderCache.Shared,
+                _ => throw new NotSupportedException($"Cache type '{str}' is not supported.")
+            };
+        }
+
+        return base.ConvertFrom(context, culture, value);
+    }
+}
+#else
+public class AsyncImageLoaderCacheTypeConverter : TypeConverter
+{
+    public override bool CanConvertFrom(ITypeDescriptorContext? context, Type sourceType)
+    {
+        return sourceType == typeof(string);
+    }
+
+    public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value)
+    {
+        if (value is string str)
+        {
+            return str switch
+            {
+                "None" => null,
+                "Ram" => RamBasedAsyncImageLoaderCache.Shared,
+                _ => throw new NotSupportedException($"Cache type '{str}' is not supported.")
+            };
+        }
+
+        return base.ConvertFrom(context, culture, value);
+    }
+}
+#endif
+
+[TypeConverter(typeof(AsyncImageLoaderCacheTypeConverter))]
 public abstract class AsyncImageLoaderCache
 {
     public abstract IImage? GetImage(string source);
@@ -190,6 +267,8 @@ public abstract class AsyncImageLoaderCache
 
 public class RamBasedAsyncImageLoaderCache : AsyncImageLoaderCache
 {
+    public static RamBasedAsyncImageLoaderCache Shared { get; } = new();
+
     private readonly Dictionary<string, WeakReference<IImage>> _cache = new();
 
     private int _checkThreshold = 16;
