@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Documents;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Svg;
@@ -8,14 +9,52 @@ using Svg.Model;
 
 namespace LiveMarkdown.Avalonia;
 
+/// <summary>
+/// Asynchronously loads images from a given source URL and caches them.
+/// Supports both SVG and bitmap images.
+/// </summary>
 public class AsyncImageLoader
 {
+    /// <summary>
+    /// Attached property for the image source URL.
+    /// </summary>
     public static readonly AttachedProperty<string?> SourceProperty =
         AvaloniaProperty.RegisterAttached<AsyncImageLoader, Image, string?>("Source");
 
+    /// <summary>
+    /// Sets the source URL for the image.
+    /// </summary>
+    /// <param name="obj"></param>
+    /// <param name="value"></param>
     public static void SetSource(Image obj, string? value) => obj.SetValue(SourceProperty, value);
 
+    /// <summary>
+    /// Gets the source URL for the image.
+    /// </summary>
+    /// <param name="obj"></param>
+    /// <returns></returns>
     public static string? GetSource(Image obj) => obj.GetValue(SourceProperty);
+
+    /// <summary>
+    /// Attached property for the SVG CSS styles.
+    /// This only works before the image is loaded.
+    /// </summary>
+    public static readonly AttachedProperty<string?> SvgCssProperty =
+        AvaloniaProperty.RegisterAttached<AsyncImageLoader, Image, string?>("SvgCss");
+
+    /// <summary>
+    /// Sets the CSS styles for the SVG image.
+    /// </summary>
+    /// <param name="obj"></param>
+    /// <param name="value"></param>
+    public static void SetSvgCss(Image obj, string? value) => obj.SetValue(SvgCssProperty, value);
+
+    /// <summary>
+    /// Gets the CSS styles for the SVG image.
+    /// </summary>
+    /// <param name="obj"></param>
+    /// <returns></returns>
+    public static string? GetSvgCss(Image obj) => obj.GetValue(SvgCssProperty);
 
     public static HttpClient HttpClient { get; set; } = new();
 
@@ -51,11 +90,25 @@ public class AsyncImageLoader
             return;
         }
 
-        var newPair = CreateLoadPair(sender, newSource!);
+        var css = sender.GetValue(SvgCssProperty);
+        if (string.IsNullOrEmpty(css))
+        {
+            var fontSize = sender.GetValue(TextElement.FontSizeProperty);
+            var fontFamily = sender.GetValue(TextElement.FontFamilyProperty).ToString();
+            if (fontFamily == "$Default") fontFamily = "Arial"; // Fallback to Arial if the default is not set
+            var color = sender.GetValue(TextElement.ForegroundProperty) switch
+            {
+                SolidColorBrush solidColorBrush => solidColorBrush.Color,
+                _ => Colors.White // Default color if not set
+            };
+            css = $":nth-child(0) {{ font-size: {fontSize}px; font-family: {fontFamily}; color: #{color.R:X2}{color.G:X2}{color.B:X2}; }}";
+        }
+
+        var newPair = CreateLoadPair(sender, newSource!, css);
         ImageLoadTasks.Add(sender, newPair);
     }
 
-    private static (Task task, CancellationTokenSource cts) CreateLoadPair(Image image, string source)
+    private static (Task task, CancellationTokenSource cts) CreateLoadPair(Image image, string source, string? css)
     {
         var cts = new CancellationTokenSource();
         var task = Task.Run(
@@ -84,11 +137,7 @@ public class AsyncImageLoader
                             return (object)WriteableBitmap.Decode(stream);
                         }
 
-                        return SvgSource.Load(stream, new SvgParameters
-                        {
-                            // Handle rm size
-                            Css = ":nth-child(0) { font-size: 16px; font-family: Arial, sans-serif; }"
-                        });
+                        return SvgSource.Load(stream, new SvgParameters { Css = css });
                     }
                     catch (OperationCanceledException)
                     {
