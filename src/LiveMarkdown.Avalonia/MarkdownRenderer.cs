@@ -5,7 +5,6 @@
 using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Logging;
 using Avalonia.Threading;
@@ -75,7 +74,7 @@ public partial class MarkdownRenderer : Control
         .UseCodeBlockSpanFixer()
         .Build();
 
-    private static readonly ParametrizedLogger? VerboseLogger;
+    internal static readonly ParametrizedLogger? VerboseLogger;
 
     static MarkdownRenderer()
     {
@@ -107,7 +106,7 @@ public partial class MarkdownRenderer : Control
                 VerboseLogger?.Log(this, "Parse markdown in {TotalMicroseconds} ms.", (DateTimeOffset.UtcNow - time).TotalMilliseconds);
 
                 time = DateTimeOffset.UtcNow;
-                documentNode.Update(document, e, CancellationToken.None);
+                documentNode.Update(documentNode, document, e, CancellationToken.None);
                 VerboseLogger?.Log(this, "Render markdown in {TotalMicroseconds} ms.", (DateTimeOffset.UtcNow - time).TotalMilliseconds);
             }
             catch (OperationCanceledException) { }

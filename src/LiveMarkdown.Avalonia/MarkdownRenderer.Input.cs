@@ -1,10 +1,9 @@
 ﻿#pragma warning disable CS0618 // MathUtilities is Obsolete
 
-using System.Collections;
 using System.Text;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.Documents;
+using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.LogicalTree;
 using Avalonia.Utilities;
@@ -21,7 +20,7 @@ public partial class MarkdownRenderer
 
             var copyStringBuilder = new StringBuilder();
             Rect? previousBounds = null;
-            foreach (var block in selectionBlocks)
+            foreach (var block in selectionBlocks.Where(b => b.FindLogicalAncestorOfType<MarkdownTextBlock>() is null))
             {
                 var bounds = TranslateBoundsToGlobal(block);
                 if (previousBounds is not null && bounds.Y >= previousBounds.Value.Bottom) copyStringBuilder.AppendLine();
@@ -33,14 +32,14 @@ public partial class MarkdownRenderer
         }
     }
 
-    private static SelectableTextBlock? GetSelectableTextBlock(PointerEventArgs e)
+    private static MarkdownTextBlock? GetMarkdownTextBlock(PointerEventArgs e)
     {
         var element = e.Source as StyledElement;
         while (element != null)
         {
             switch (element)
             {
-                case SelectableTextBlock stb:
+                case MarkdownTextBlock stb:
                     return stb;
                 case MarkdownRenderer:
                     return null;
@@ -52,90 +51,31 @@ public partial class MarkdownRenderer
         return null;
     }
 
-    private static IEnumerable<SelectableTextBlock> DfsWhile(SelectableTextBlock current, Predicate<SelectableTextBlock> condition, bool reversed)
+    private static bool IsClickInsideMarkdownTextBlock(PointerEventArgs e)
     {
-        if (reversed)
+        var element = e.Source as StyledElement;
+        while (element != null)
         {
-            var node = GetPreviousElement(current);
-            while (node != null)
+            switch (element)
             {
-                if (node is SelectableTextBlock stb)
-                {
-                    if (!condition(stb)) yield break;
-                    yield return stb;
-                }
-
-                node = GetPreviousElement(node);
+                case Button:
+                case Track:
+                    return false;
+                case MarkdownTextBlock:
+                case MarkdownRenderer:
+                    return true;
+                default:
+                    element = element.Parent;
+                    break;
             }
         }
-        else
-        {
-            var node = GetNextElement(current);
-            while (node != null)
-            {
-                if (node is SelectableTextBlock stb)
-                {
-                    if (!condition(stb)) yield break;
-                    yield return stb;
-                }
-
-                node = GetNextElement(node);
-            }
-        }
-
-        static IList GetChildren(StyledElement element)
-        {
-            return element switch
-            {
-                Panel panel => panel.Children,
-                Decorator { Child: { } child } => new[] { child },
-                ContentControl { Content: StyledElement child } => new[] { child },
-                Span span => span.Inlines,
-                _ => Array.Empty<StyledElement>()
-            };
-        }
-
-        StyledElement? GetNextElement(StyledElement element)
-        {
-            var children = GetChildren(element);
-            if (children.Count > 0)
-                return Cast(children[0]);
-            while (element.Parent != null)
-            {
-                var siblings = GetChildren(element.Parent);
-                var idx = siblings.IndexOf(element);
-                if (idx < siblings.Count - 1)
-                    return Cast(siblings[idx + 1]);
-                element = element.Parent;
-            }
-            return null;
-        }
-
-        StyledElement? GetPreviousElement(StyledElement element)
-        {
-            if (element.Parent == null) return null;
-            var siblings = GetChildren(element.Parent);
-            var idx = siblings.IndexOf(element);
-            if (idx <= 0) return element.Parent;
-
-            var node = Cast(siblings[idx - 1]);
-            var children = GetChildren(node);
-            while (children.Count > 0)
-            {
-                node = Cast(children[^1]);
-                children = GetChildren(node);
-            }
-            return node;
-        }
-
-        static StyledElement Cast(object? obj) =>
-            obj as StyledElement ?? throw new InvalidCastException($"Expected StyledElement, got {obj?.GetType().Name ?? "null"}");
+        return false;
     }
 
-    private SelectableTextBlock? selectionStartBlock;
+    private MarkdownTextBlock? selectionStartBlock;
     private Rect startBlockGlobalBounds;
     private int startBlockSelectionStart;
-    private readonly List<SelectableTextBlock> selectionBlocks = [];
+    private readonly List<MarkdownTextBlock> selectionBlocks = [];
 
     /// <summary>
     /// Translates the bounds of a visual element to global(this) coordinates.
@@ -144,29 +84,28 @@ public partial class MarkdownRenderer
     /// <returns></returns>
     private Rect TranslateBoundsToGlobal(Visual visual)
     {
+        var topLeft = visual.TranslatePoint(new Point(), this) ?? new Point();
         var bounds = visual.Bounds;
-        var topLeft = visual.TranslatePoint(new Point(bounds.X, bounds.Y), this) ?? new Point(0, 0);
-        return new Rect(topLeft.X, topLeft.Y, bounds.Width, bounds.Height); // We can assume that the bounds are not rotated or scaled
+        var bottomRight = visual.TranslatePoint(new Point(bounds.Width, bounds.Height), this) ?? new Point();
+        return new Rect(topLeft.X, topLeft.Y, bottomRight.X - topLeft.X, bottomRight.Y - topLeft.Y);
     }
 
-    private SelectableTextBlock? FindSelectableTextBlockAtPoint(PointerEventArgs e, Point point)
+    private MarkdownTextBlock? FindMarkdownTextBlockAtPoint(PointerEventArgs e, Point point)
     {
-        var result = GetSelectableTextBlock(e);
+        var result = GetMarkdownTextBlock(e);
         if (result is not null) return result;
 
-        SelectableTextBlock? previous = null;
-        Rect previousBounds = default;
-        foreach (var current in documentNode.Control.GetLogicalDescendants().OfType<SelectableTextBlock>())
+        MarkdownTextBlock? previous = null;
+        foreach (var current in documentNode.TextBlocks.OrderBy(b => b.SourceSpan.Start))
         {
             var bounds = TranslateBoundsToGlobal(current);
 
-            // 1. check if `point` is inside the bounds of the current SelectableTextBlock
+            // 1. check if `point` is inside the bounds of the current MarkdownTextBlock
             if (bounds.Contains(point)) return current;
 
-            // 2. check if `point` is between the bounds of the previous and current SelectableTextBlock
+            // 2. check if `point` is between the bounds of the previous and current MarkdownTextBlock
             if (previous is not null &&
-                previousBounds.X <= point.X && previousBounds.Y <= point.Y &&
-                bounds.Right >= point.X && bounds.Bottom >= point.Y)
+                bounds.Y > point.Y || bounds.Bottom >= point.Y && bounds.X > point.X)
             {
                 return previous;
             }
@@ -179,38 +118,39 @@ public partial class MarkdownRenderer
 
     private void HandlePointerPressed(object? sender, PointerPressedEventArgs e)
     {
-        Focus();
+        if (!IsClickInsideMarkdownTextBlock(e))
+        {
+            // if the click is not inside a MarkdownTextBlock, we do not handle the event
+            return;
+        }
 
         var clickInfo = e.GetCurrentPoint(this);
-
         if (clickInfo.Properties.IsLeftButtonPressed)
         {
             foreach (var selectionBlock in selectionBlocks) selectionBlock.ClearSelection();
             selectionBlocks.Clear();
         }
 
-        selectionStartBlock = FindSelectableTextBlockAtPoint(e, clickInfo.Position);
+        Focus();
+
+        selectionStartBlock = FindMarkdownTextBlockAtPoint(e, clickInfo.Position);
         if (selectionStartBlock is null)
         {
-            // if no SelectableTextBlock was found, we do not handle the event
+            // if no MarkdownTextBlock was found, we do not handle the event
             return;
         }
 
         startBlockGlobalBounds = TranslateBoundsToGlobal(selectionStartBlock);
         selectionBlocks.Add(selectionStartBlock);
 
-        var text = selectionStartBlock.Inlines is { Count: > 0 } inline ? inline.Text : selectionStartBlock.Text;
-        if (text != null && clickInfo.Properties.IsLeftButtonPressed)
+        var text = selectionStartBlock.ActualText;
+        if (clickInfo.Properties.IsLeftButtonPressed)
         {
             var padding = selectionStartBlock.Padding;
             var point = e.GetPosition(selectionStartBlock) - new Point(padding.Left, padding.Top);
-            var clickToSelect = e.KeyModifiers.HasFlag(KeyModifiers.Shift);
-
+            var textPosition = selectionStartBlock.TextLayoutHitTestPoint(point);
             var wordSelectionStart = MathUtilities.Clamp(startBlockSelectionStart, 0, text.Length);
-
-            var hit = selectionStartBlock.TextLayout.HitTestPoint(point);
-            var textPosition = hit.TextPosition;
-
+            var clickToSelect = e.KeyModifiers.HasFlag(KeyModifiers.Shift);
             switch (e.ClickCount)
             {
                 case 1:
@@ -275,10 +215,10 @@ public partial class MarkdownRenderer
         var clickInfo = e.GetCurrentPoint(this);
         if (selectionStartBlock is null || !Equals(e.Pointer.Captured, this) || !clickInfo.Properties.IsLeftButtonPressed) return;
 
-        var selectionEndBlock = FindSelectableTextBlockAtPoint(e, clickInfo.Position);
+        var selectionEndBlock = FindMarkdownTextBlockAtPoint(e, clickInfo.Position);
         if (selectionEndBlock is null) return;
 
-        var text = (selectionEndBlock.Inlines is { Count: > 0 } inline ? inline.Text : selectionEndBlock.Text) ?? "";
+        var text = selectionEndBlock.ActualText;
         var padding = selectionEndBlock.Padding;
 
         var point = e.GetPosition(selectionEndBlock) - new Point(padding.Left, padding.Top);
@@ -287,12 +227,11 @@ public partial class MarkdownRenderer
             MathUtilities.Clamp(point.X, 0, Math.Max(selectionEndBlock.TextLayout.WidthIncludingTrailingWhitespace, 0)),
             MathUtilities.Clamp(point.Y, 0, Math.Max(selectionEndBlock.TextLayout.Height, 0)));
 
-        var hit = selectionEndBlock.TextLayout.HitTestPoint(point);
-        var textPosition = hit.TextPosition;
+        var textPosition = selectionEndBlock.TextLayoutHitTestPoint(point);
 
         if (Equals(selectionEndBlock, selectionStartBlock))
         {
-            // We are selecting inside the same `SelectableTextBlock`
+            // We are selecting inside the same `MarkdownTextBlock`
             var selectionStart = Math.Min(startBlockSelectionStart, textPosition);
             var selectionEnd = Math.Max(startBlockSelectionStart, textPosition);
             selectionStartBlock.SetCurrentValue(SelectableTextBlock.SelectionStartProperty, selectionStart);
@@ -307,7 +246,7 @@ public partial class MarkdownRenderer
         }
         else
         {
-            // Not in the same `SelectableTextBlock`, we need to get the range that we want to select
+            // Not in the same `MarkdownTextBlock`, we need to get the range that we want to select
 
             // 1. determine the direction of selection
             //
@@ -321,41 +260,27 @@ public partial class MarkdownRenderer
                 clickInfo.Position.X < startBlockGlobalBounds.X &&
                 clickInfo.Position.Y <= startBlockGlobalBounds.Bottom;
 
+            var blocks = documentNode.TextBlocks.Where(b => b.FindLogicalAncestorOfType<MarkdownTextBlock>() is null);
             int selectionStart, selectionEnd;
             if (reversed)
             {
                 selectionStart = 0;
                 selectionEnd = startBlockSelectionStart;
+                blocks = blocks.OrderByDescending(b => b.SourceSpan.Start);
             }
             else
             {
                 selectionStart = startBlockSelectionStart;
-                var startText = selectionStartBlock.Inlines is { Count: > 0 } startInline ? startInline.Text : selectionStartBlock.Text;
-                selectionEnd = startText?.Length ?? 0;
+                selectionEnd = selectionStartBlock.ActualText.Length;
+                blocks = blocks.OrderBy(b => b.SourceSpan.Start);
             }
             selectionStartBlock.SetCurrentValue(SelectableTextBlock.SelectionStartProperty, selectionStart);
             selectionStartBlock.SetCurrentValue(SelectableTextBlock.SelectionEndProperty, selectionEnd);
 
-            // 2. set conditions for the DFS traversal
-            bool Condition(SelectableTextBlock current)
-            {
-                var currentBounds = TranslateBoundsToGlobal(current);
-                if (currentBounds.Bottom <= clickInfo.Position.Y) return true;
-                return currentBounds.Y <= clickInfo.Position.Y && currentBounds.Left <= clickInfo.Position.X;
-            }
-
-            bool ReversedCondition(SelectableTextBlock current)
-            {
-                var currentBounds = TranslateBoundsToGlobal(current);
-                if (currentBounds.Y >= clickInfo.Position.Y) return true;
-                return currentBounds.Bottom >= clickInfo.Position.Y && currentBounds.Right >= clickInfo.Position.X;
-            }
-
-            Predicate<SelectableTextBlock> condition = reversed ? ReversedCondition : Condition;
-
             // 3. Enumerate the blocks from the selection start block to the selection end block
             var index = 0;
-            foreach (var block in DfsWhile(selectionStartBlock, condition, reversed))
+            blocks = blocks.SkipWhile(b => !ReferenceEquals(b, selectionStartBlock)).Skip(1);
+            foreach (var block in blocks)
             {
                 index++; // starting from 1, because we already added the selection start block
 
@@ -390,12 +315,12 @@ public partial class MarkdownRenderer
                         block.SetCurrentValue(SelectableTextBlock.SelectionStartProperty, 0);
                         block.SetCurrentValue(SelectableTextBlock.SelectionEndProperty, textPosition);
                     }
+
+                    break;
                 }
-                else
-                {
-                    // If we are not at the end block, select all text in the block
-                    SelectAll(block);
-                }
+
+                // If we are not at the end block, select all text in the block
+                block.SelectAll();
             }
 
             // remove all blocks after the current index
@@ -429,7 +354,7 @@ public partial class MarkdownRenderer
         }
         else if (Match(keymap.SelectAll))
         {
-            foreach (var block in this.GetLogicalDescendants().OfType<SelectableTextBlock>()) SelectAll(block);
+            foreach (var block in this.GetLogicalDescendants().OfType<MarkdownTextBlock>()) block.SelectAll();
             e.Handled = true;
         }
     }
@@ -449,17 +374,6 @@ public partial class MarkdownRenderer
         {
             // ignore any exceptions during copy operation
         }
-    }
-
-    /// <summary>
-    /// SelectableTextBlock.SelectAll is wrong.
-    /// </summary>
-    /// <param name="block"></param>
-    private static void SelectAll(SelectableTextBlock block)
-    {
-        block.SetCurrentValue(SelectableTextBlock.SelectionStartProperty, 0);
-        var blockText = block.Inlines is { Count: > 0 } startInline ? startInline.Text : block.Text;
-        block.SetCurrentValue(SelectableTextBlock.SelectionEndProperty, blockText?.Length ?? 0);
     }
 }
 

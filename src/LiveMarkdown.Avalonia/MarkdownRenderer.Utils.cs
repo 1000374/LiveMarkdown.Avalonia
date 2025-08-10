@@ -14,7 +14,7 @@ public partial class MarkdownRenderer
     /// Utility class to map <see cref="Control"/> to <see cref="BlockNode"/> itself
     /// </summary>
     /// <param name="target"></param>
-    private class InlinesProxy(InlineCollection target)
+    public class InlinesProxy(InlineCollection target)
     {
         public int Count => children.Count;
 
@@ -50,9 +50,9 @@ public partial class MarkdownRenderer
     /// Utility class to map <see cref="Control"/> to <see cref="BlockNode"/> itself
     /// </summary>
     /// <param name="target"></param>
-    private class BlocksProxy(Controls target)
+    public class BlocksProxy(Controls target)
     {
-        private class MockBlockNode(Control control) : BlockNode
+        public class MockBlockNode(Control control) : BlockNode
         {
             private const string NotSupportedMessage = "This node is a mock and does not support this operation.";
 
@@ -68,6 +68,7 @@ public partial class MarkdownRenderer
             }
 
             protected override bool UpdateCore(
+                DocumentNode documentNode1,
                 MarkdownObject markdownObject,
                 in ObservableStringBuilderChangedEventArgs change,
                 CancellationToken cancellationToken)
@@ -407,11 +408,5 @@ public partial class MarkdownRenderer
 
             return cursor;
         }
-    }
-
-    private static void Reset<T>(ICollection<T> collection, T item)
-    {
-        collection.Clear();
-        collection.Add(item);
     }
 }

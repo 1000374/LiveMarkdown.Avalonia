@@ -24,7 +24,7 @@ public class InlineHyperlink : InlineUIContainer
         get => button.Content as Image;
         set
         {
-            if (value is null) button.Content = selectableTextBlock;
+            if (value is null) button.Content = TextBlock;
             else button.Content = value;
         }
     }
@@ -46,21 +46,22 @@ public class InlineHyperlink : InlineUIContainer
         }
     }
 
-    private readonly SelectableTextBlock selectableTextBlock;
+    public MarkdownTextBlock TextBlock { get; }
+
     private readonly Button button;
 
     public InlineHyperlink()
     {
-        selectableTextBlock = new SelectableTextBlock
+        TextBlock = new MarkdownTextBlock
         {
             Classes = { "InlineHyperlink" }
         };
-        Inlines = selectableTextBlock.Inlines ?? throw new NotSupportedException("This should never happen.");
+        Inlines = TextBlock.Inlines ?? throw new NotSupportedException("This should never happen.");
 
         button = new Button
         {
             Classes = { "InlineHyperlink" },
-            Content = selectableTextBlock,
+            Content = TextBlock,
             [!ToolTip.TipProperty] = this[!HRefProperty]
         };
         button.Click += HandleButtonClick;

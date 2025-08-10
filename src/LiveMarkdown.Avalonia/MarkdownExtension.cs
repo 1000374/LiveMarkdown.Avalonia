@@ -5,7 +5,7 @@ using Markdig.Syntax;
 
 namespace LiveMarkdown.Avalonia;
 
-internal static class MarkdownExtension
+public static class MarkdownExtension
 {
     public static MarkdownPipelineBuilder UseCodeBlockSpanFixer(this MarkdownPipelineBuilder pipeline)
     {
@@ -14,7 +14,10 @@ internal static class MarkdownExtension
     }
 }
 
-file class CodeBlockSpanFixerExtension : IMarkdownExtension
+/// <summary>
+/// Markdown extension that fixes the spans of code blocks.
+/// </summary>
+public class CodeBlockSpanFixerExtension : IMarkdownExtension
 {
     public void Setup(MarkdownPipelineBuilder pipeline)
     {
@@ -28,7 +31,10 @@ file class CodeBlockSpanFixerExtension : IMarkdownExtension
     }
 }
 
-file class CodeBlockSpanFixerParser : FencedCodeBlockParser
+/// <summary>
+/// A parser that fixes the spans of code blocks.
+/// </summary>
+public class CodeBlockSpanFixerParser : FencedCodeBlockParser
 {
     public override BlockState TryContinue(BlockProcessor processor, Block block)
     {
