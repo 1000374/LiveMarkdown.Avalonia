@@ -1,14 +1,15 @@
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using System.Windows.Input;
 
 namespace LiveMarkdown.Avalonia.Demo;
 
 public partial class MainWindow : Window
 {
     public AvaloniaList<string> MarkdownList { get; } = [];
-
+    public ICommand HyperlinkCommand { get; }
     public string? SelectedMarkdown
     {
         set => _ = RenderMarkdownAsync(value);
@@ -20,12 +21,21 @@ public partial class MainWindow : Window
 
     public MainWindow()
     {
+        HyperlinkCommand = new RelayCommand<InlineHyperlinkClickedEventArgs>(OnHyperlinkCommandExecuted);
+        DataContext = this;
         InitializeComponent();
-
+        
         _ = new AutoScrollHelper(RawMarkdownTextBlockScrollViewer);
         _ = new AutoScrollHelper(MarkdownRendererScrollViewer);
     }
-
+    private void OnHyperlinkCommandExecuted(InlineHyperlinkClickedEventArgs args)
+    {
+        var launcher = TopLevel.GetTopLevel(this)?.Launcher;
+        if (launcher is { }&& args?.HRef is { } url)
+        {
+            launcher.LaunchUriAsync(url);
+        }
+    }
     protected override void OnLoaded(RoutedEventArgs e)
     {
         base.OnLoaded(e);
